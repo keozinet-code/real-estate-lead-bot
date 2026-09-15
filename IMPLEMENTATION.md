@@ -1,0 +1,320 @@
+> **Project:** Real Estate Lead Bot\
+> **Level:** Beginner → Intermediate MVP\
+> **Stack:** React, FastAPI, PostgreSQL, n8n, AI\
+> **Production target:** Existing VPS using Docker Compose and Nginx
+
+# Engineering Progress Log
+
+## 1. Purpose
+
+This file records what has **actually been implemented**. It is project
+memory for developers and AI coding agents.
+
+`TASK.md` tracks planned work.\
+`IMPLEMENTATION.md` tracks reality.
+
+## 2. Current Snapshot
+
+**Overall Status:** In Progress\
+**Current Sprint:** Sprint 0 --- Documentation & Foundation\
+**Current Phase:** Documentation\
+**Current Task:** DOC-016 --- Cross-check project contracts\
+**Next Task:** Begin Phase 1 project setup\
+**Production Deployment:** Not Started\
+**Production Target:** Existing VPS\
+**Active Blockers:** None recorded
+
+## 3. Confirmed So Far
+
+-   Product concept defined
+-   High-level architecture defined
+-   Lead information defined
+-   Qualification model defined
+-   AI responsibilities defined
+-   n8n flow defined
+-   Testing strategy defined
+-   Existing-VPS deployment strategy defined
+-   Task tracking established
+-   Engineering log established
+
+## 4. Not Yet Confirmed as Implemented
+
+-   React application
+-   FastAPI application
+-   PostgreSQL schema/migrations
+-   AI provider integration
+-   Lead scoring code
+-   n8n production workflow
+-   Notification integration
+-   Dockerfiles
+-   Production Docker Compose
+-   Nginx configuration
+-   Production deployment
+-   Automated test suite
+
+## 5. Component Status
+
+  Component            Status
+  -------------------- -------------
+  Documentation        In Progress
+  Project Setup        Not Started
+  PostgreSQL           Not Started
+  FastAPI              Not Started
+  AI Extraction        Not Started
+  Lead Qualification   Not Started
+  n8n                  Not Started
+  React                Not Started
+  Integration          Not Started
+  Testing              Not Started
+  VPS Deployment       Not Started
+
+## 6. Technical Decisions
+
+  ID        Decision                         Status
+  --------- -------------------------------- --------
+  DEC-001   React frontend                   Active
+  DEC-002   FastAPI backend                  Active
+  DEC-003   PostgreSQL database              Active
+  DEC-004   n8n orchestration                Active
+  DEC-005   AI for structured extraction     Active
+  DEC-006   Deterministic MVP lead scoring   Active
+  DEC-007   Existing VPS production target   Active
+  DEC-008   Docker Compose deployment        Active
+  DEC-009   Nginx reverse proxy              Active
+  DEC-010   No Kubernetes for MVP            Active
+  DEC-011   No microservices for MVP         Active
+
+Never delete superseded decisions; mark them `Superseded`.
+
+## 7. Files Changed
+
+  ------------------------------------------------------------------------------
+  Date           Task ID        File            Change            Reason
+  -------------- -------------- --------------- ----------------- --------------
+  2026-09-15     DOC            Documentation   Created/updated   Establish
+                                suite                             project
+                                                                  engineering
+                                                                  contracts
+
+  ------------------------------------------------------------------------------
+
+Add source-code changes only after they occur.
+
+## 8. Tests Performed
+
+  Date   Task ID   Test                                 Environment   Result
+  ------ --------- ------------------------------------ ------------- ---------
+  ---    ---       No application tests performed yet   ---           NOT RUN
+
+Allowed results:
+
+``` text
+PASS
+FAIL
+PARTIAL
+NOT RUN
+```
+
+Never record PASS without executing the test.
+
+## 9. Issues
+
+No implementation issues recorded yet.
+
+Issue template:
+
+``` text
+Issue ID:
+Task ID:
+Status:
+Problem:
+Error:
+Investigation:
+Root Cause:
+Fix:
+Verification:
+```
+
+## 10. Commands Executed
+
+Record actual engineering/deployment commands after execution. Never
+record secrets.
+
+## 11. Database Migration History
+
+  Date   Migration                    Environment   Result
+  ------ ---------------------------- ------------- ---------
+  ---    No migrations executed yet   ---           NOT RUN
+
+## 12. n8n State
+
+**Status:** Not Started
+
+When implemented record:
+
+``` text
+Workflow:
+Workflow file:
+Nodes changed:
+Webhook:
+Tests:
+Result:
+Issues:
+```
+
+## 13. AI State
+
+**Status:** Not Started
+
+When implemented record:
+
+``` text
+Provider/model:
+Prompt location:
+Output schema:
+Validation:
+Failure behavior:
+Tests:
+Known limitations:
+```
+
+Never record API keys.
+
+## 14. Qualification State
+
+Defined educational scoring:
+
+``` text
+Phone +10
+Budget +20
+Location +15
+Property type +15
+Buying soon +25
+Clear requirements +15
+```
+
+``` text
+0–49 COLD
+50–79 WARM
+80–100 HOT
+```
+
+**Implementation Status:** Not Started
+
+The deterministic definitions of "buying soon" and "clear requirements"
+still need to be finalized before coding.
+
+## 15. VPS Deployment Status
+
+Deployment is to an existing accessible VPS.
+
+  Component               Status
+  ----------------------- -------------
+  Production `.env`       Not Started
+  Frontend image          Not Started
+  Backend image           Not Started
+  Docker Compose          Not Started
+  PostgreSQL              Not Started
+  DB migrations           Not Started
+  n8n                     Not Started
+  Production workflow     Not Started
+  FastAPI                 Not Started
+  React                   Not Started
+  Nginx                   Not Started
+  Domain/DNS              Not Started
+  HTTPS                   Not Started
+  Backup                  Not Started
+  Smoke test              Not Started
+  E2E test                Not Started
+  Rollback verification   Not Started
+
+## 16. Deployment History
+
+  Date   Version/Commit      Result   E2E   Rollback
+  ------ ------------------- -------- ----- ----------
+  ---    No deployment yet   ---      ---   ---
+
+## 17. Implementation Entry Template
+
+``` markdown
+## YYYY-MM-DD — TASK-ID — Task Name
+
+**Status:** Completed / In Progress / Blocked
+
+### Objective
+What was being implemented?
+
+### Work Performed
+What actually changed?
+
+### Files Changed
+- `path/file`
+
+### Commands Executed
+```bash
+command
+```
+
+### Tests Performed
+
+Test: Result:
+
+### Technical Decisions
+
+What decisions were made?
+
+### Issues Encountered
+
+What problems occurred?
+
+### Resolution
+
+How were they fixed?
+
+### Remaining Work
+
+What remains?
+
+### Next Task
+
+TASK-ID --- description
+
+
+    ## 18. Agent Handoff
+
+    Before work:
+
+    1. Read `AGENTS.md`.
+    2. Read `README.md`.
+    3. Read relevant specs.
+    4. Read `TASK.md`.
+    5. Read this file.
+    6. Inspect actual code.
+    7. Identify the current Task ID.
+
+    After work:
+
+    1. Run relevant tests.
+    2. Update task status.
+    3. Update this file.
+    4. Record actual files/commands/tests.
+    5. Record decisions and issues.
+    6. Set the next task.
+
+    ## 19. Final Definition of Done
+
+    ```text
+    Customer
+    → Domain + HTTPS
+    → Nginx
+    → React
+    → FastAPI
+    → n8n
+    → AI Extraction
+    → Lead Qualification
+    → PostgreSQL
+    → Sales Notification
+    → Customer Response
+
+Only after the complete production flow is implemented and tested should
+the overall status be marked `COMPLETED`.
