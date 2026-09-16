@@ -1,4 +1,19 @@
-> **Project:** Real Estate Lead Bot\
+**Implementation Notes:**
+
+Created the initial project directories:
+
+- `frontend/`
+- `backend/`
+- `n8n/workflows/`
+- `database/`
+- `tests/`
+- `scripts/`
+
+Placeholder `.gitkeep` files were added so Git can track the directories.
+
+**Completed On:** 2026-09-16
+>
+ **Project:** Real Estate Lead Bot\
 > **Level:** Beginner → Intermediate MVP\
 > **Stack:** React, FastAPI, PostgreSQL, n8n, AI\
 > **Production target:** Existing VPS using Docker Compose and Nginx
@@ -56,7 +71,7 @@ Only `Completed` uses `[x]`.
 
 ## Phase 1 --- Project Setup
 
--   [ ] \[Not Started\] SETUP-001 --- Create/inspect Git repository
+-   [ ] \[Completed\] SETUP-001 --- Create/inspect Git repository
 -   [ ] \[Not Started\] SETUP-002 --- Create project directories
 -   [ ] \[Not Started\] SETUP-003 --- Configure `.gitignore`
 -   [ ] \[Not Started\] SETUP-004 --- Create `.env.example`
