@@ -81,7 +81,7 @@ Only `Completed` uses `[x]`.
 
 -   [ ] \[Completed\] SETUP-001 --- Create/inspect Git repository
 -   [ ] \[Completed\] SETUP-002 --- Create project directories
--   [ ] \[Not Started\] SETUP-003 --- Configure `.gitignore`
+-   [ ] \[Completed\] SETUP-003 --- Configure `.gitignore`
 -   [ ] \[Not Started\] SETUP-004 --- Create `.env.example`
 -   [ ] \[Not Started\] SETUP-005 --- Initialize React
 -   [ ] \[Not Started\] SETUP-006 --- Initialize FastAPI
