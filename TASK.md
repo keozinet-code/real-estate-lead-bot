@@ -1,3 +1,11 @@
+Implementation Notes:
+Updated .env.example with application, frontend, backend,
+PostgreSQL, n8n, AI, notification, and security variables.
+
+Verified that the real .env file is excluded by .gitignore.
+
+Completed On: 2026-09-16
+
 **Implementation Notes:**
 
 Created the initial project directories:
@@ -72,7 +80,7 @@ Only `Completed` uses `[x]`.
 ## Phase 1 --- Project Setup
 
 -   [ ] \[Completed\] SETUP-001 --- Create/inspect Git repository
--   [ ] \[Not Started\] SETUP-002 --- Create project directories
+-   [ ] \[Completed\] SETUP-002 --- Create project directories
 -   [ ] \[Not Started\] SETUP-003 --- Configure `.gitignore`
 -   [ ] \[Not Started\] SETUP-004 --- Create `.env.example`
 -   [ ] \[Not Started\] SETUP-005 --- Initialize React
