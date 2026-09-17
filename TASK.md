@@ -46,7 +46,7 @@ Only `Completed` uses `[x]`.
   ------------------------------- -------------
   0 --- Documentation             In Progress
   1 --- Project Setup             Not Started
-  2 --- Database                  Not Started
+ 2 --- Database                  Completed
   3 --- Backend/API               Not Started
   4 --- AI Extraction             Not Started
   5 --- Lead Qualification        Not Started
@@ -79,13 +79,18 @@ Only `Completed` uses `[x]`.
 
 ## Phase 1 --- Project Setup
 
--   [ ] \[Completed\] SETUP-001 --- Create/inspect Git repository
--   [ ] \[Completed\] SETUP-002 --- Create project directories
--   [ ] \[Completed\] SETUP-003 --- Configure `.gitignore`
--   [ ] \[Completed\] SETUP-004 --- Create `.env.example`
--   [ ] \[Not Started\] SETUP-005 --- Initialize React
--   [ ] \[Not Started\] SETUP-006 --- Initialize FastAPI
--   [ ] \[Not Started\] SETUP-007 --- Create database/migrations
+-   -   [x] [Completed] DB-001 --- Configure PostgreSQL
+-   [x] [Completed] DB-002 --- Implement lead model
+-   [x] [Completed] DB-003 --- Add constraints/indexes
+-   [x] [Completed] DB-004 --- Configure Alembic
+-   [x] [Completed] DB-005 --- Create initial migration
+-   [x] [Completed] DB-006 --- Test lead create/read persistence and constraints-   [x] [Completed] DB-001 --- Configure PostgreSQL
+-   [x] [Completed] DB-002 --- Implement lead model
+-   [x] [Completed] DB-003 --- Add constraints/indexes
+-   [x] [Completed] DB-004 --- Configure Alembic
+-   [x] [Completed] DB-005 --- Create initial migration
+-   [x] [Completed] DB-006 --- Test lead create/read persistence and constraints
+-   [ ] [Completed] SETUP-007 --- Create database/migrations
     structure
 -   [ ] \[Not Started\] SETUP-008 --- Create n8n workflow directory
 -   [ ] \[Not Started\] SETUP-009 --- Create tests directory
