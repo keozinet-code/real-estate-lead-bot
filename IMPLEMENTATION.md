@@ -1,3 +1,317 @@
+## 2026-09-17 — Database Schema and Alembic Migration Completed
+
+Phase 2 database implementation for the PrimeHomes Real Estate Lead Bot was completed and verified.
+
+### Implemented
+
+- Added containerized FastAPI backend environment using Python 3.13.
+- Configured SQLAlchemy 2.x database foundation.
+- Configured Psycopg PostgreSQL driver.
+- Added application database settings using `pydantic-settings`.
+- Added SQLAlchemy session factory and declarative base.
+- Implemented the `Lead` SQLAlchemy model.
+- Configured Alembic migration management.
+- Generated and applied initial migration:
+  `2cb455e93ac7_create_leads_table.py`.
+- Verified Alembic revision `2cb455e93ac7 (head)`.
+- Verified application-to-PostgreSQL connectivity.
+- Verified SQLAlchemy lead persistence.
+
+### Lead Schema
+
+The `leads` table contains 17 columns including:
+
+- UUID primary key
+- contact information
+- raw enquiry
+- property requirements
+- NUMERIC(15,2) budget
+- lead intent
+- lead score
+- lead category
+- processing status
+- human-agent flag
+- timezone-aware creation and update timestamps
+
+### Database Constraints
+
+Verified PostgreSQL constraints:
+
+- `ck_leads_score_range`
+- `ck_leads_bedrooms_positive`
+- `ck_leads_budget_non_negative`
+
+Negative database tests confirmed PostgreSQL rejects:
+
+- lead scores greater than 100
+- negative budgets
+- bedrooms equal to zero
+
+Failed transactions were rolled back successfully and left no invalid test records.
+
+### Indexes
+
+Verified indexes for:
+
+- `created_at`
+- `email`
+- `lead_category`
+- `location`
+- `phone`
+- `processing_status`
+
+### Persistence Test
+
+A controlled sample lead was successfully persisted through:
+
+`Python 3.13 → SQLAlchemy → Psycopg → PostgreSQL`
+
+The test confirmed UUID generation, enum persistence, decimal budget storage, lead qualification fields, and timezone-aware timestamps.
+
+### Status
+
+DB-001 through DB-006 completed.
+
+Next implementation phase: FastAPI backend/API foundation.
+
+## 2026-09-16 — Docker and PostgreSQL Foundation Configured
+
+### Task
+
+SETUP-004 — Configure Docker Development Environment
+
+### Branch
+
+`feat/project-foundation`
+
+### Work Completed
+
+Created the initial Docker Compose development infrastructure.
+
+PostgreSQL 17 was configured as the first containerized application service.
+
+Configuration includes:
+
+- PostgreSQL 17
+- Persistent Docker volume
+- Local-only database port binding
+- Environment-variable configuration
+- Container restart policy
+- PostgreSQL health check
+
+### Infrastructure
+
+Service:
+
+`postgres`
+
+Container:
+
+`primehomes-postgres`
+
+Database:
+
+`primehomes`
+
+Application database user:
+
+`primehomes_app`
+
+Host access:
+
+`127.0.0.1:5432`
+
+Persistent volume:
+
+`postgres_data`
+
+### Verification Performed
+
+Verified Docker engine and Docker Compose.
+
+Successfully pulled:
+
+`postgres:17`
+
+Started PostgreSQL using:
+
+`docker compose up -d postgres`
+
+Verified container health using:
+
+`docker compose ps`
+
+Created temporary `setup_test` table.
+
+Inserted:
+
+`PrimeHomes database working`
+
+Successfully retrieved the stored record.
+
+Removed the temporary table.
+
+Stopped PostgreSQL using:
+
+`docker compose stop`
+
+Restarted using:
+
+`docker compose up -d`
+
+Confirmed the container restarted successfully.
+
+### Issue Encountered
+
+The initial PostgreSQL image pull failed because Docker temporarily could not resolve:
+
+`registry-1.docker.io`
+
+Windows DNS and HTTPS connectivity were tested successfully. A subsequent direct Docker image pull succeeded without requiring configuration changes.
+
+### Files Added
+
+- `docker-compose.yml`
+
+### Files Modified
+
+- `TASK.md`
+- `IMPLEMENTATION.md`
+
+### Result
+
+Completed
+
+### Next Task
+
+DB-001 — Implement the database schema defined in `docs/DATA_MODEL.md`.
+
+
+## 2026-09-16 — Git Development Configuration Verified
+
+### Task
+SETUP-003 — Verify Git Configuration
+
+### Branch
+`feat/project-foundation`
+
+### Verification Performed
+
+- Verified GitHub remote.
+- Verified local and remote branch tracking.
+- Verified Git commit identity.
+- Verified successful GitHub push.
+- Verified clean working tree.
+
+### Repository State
+
+- `main` → `origin/main`
+- `feat/project-foundation` → `origin/feat/project-foundation`
+
+### GitHub CLI
+
+GitHub CLI (`gh`) is not currently installed.
+
+It is not required because the standard Git workflow is functioning correctly.
+
+### Result
+Completed
+
+### Next Task
+SETUP-004 — Configure Docker development environment.
+
+## 2026-09-16 — Environment Template Configured
+
+### Task
+SETUP-002 — Create Environment Template
+
+### Branch
+`feat/project-foundation`
+
+### Work Completed
+Updated `.env.example` with the initial configuration required by React, FastAPI, PostgreSQL, n8n, AI integration, notifications, and application security.
+
+Verified that `.env` is excluded from Git.
+
+### Files Modified
+- `.env.example`
+- `TASK.md`
+- `IMPLEMENTATION.md`
+
+### Verification
+Ran:
+
+`git check-ignore -v .env`
+
+Confirmed that `.env` is ignored.
+
+### Issues Encountered
+None.
+
+### Result
+Completed
+
+### Next Task
+SETUP-003 — Verify Git configuration and repository development conventions.
+
+
+## 2026-09-16 — Initial Repository Structure Created
+
+### Task
+
+SETUP-001 — Create Repository Structure
+
+### Branch
+
+`feat/project-foundation`
+
+### Work Completed
+
+Created the initial application directories:
+
+- `frontend/`
+- `backend/`
+- `n8n/workflows/`
+- `database/`
+- `tests/`
+- `scripts/`
+
+Added `.gitkeep` placeholder files so the empty directories can be tracked by Git.
+
+### Files Added
+
+- `frontend/.gitkeep`
+- `backend/.gitkeep`
+- `n8n/workflows/.gitkeep`
+- `database/.gitkeep`
+- `tests/.gitkeep`
+- `scripts/.gitkeep`
+
+### Files Modified
+
+- `TASK.md`
+- `IMPLEMENTATION.md`
+
+### Tests Performed
+
+Verified repository state using:
+
+`git status`
+
+Git correctly detected the new project directories on the `feat/project-foundation` branch.
+
+### Issues Encountered
+
+None.
+
+### Result
+
+Completed
+
+### Next Task
+
+SETUP-002 — Verify and finalize `.env.example`.
+
 > **Project:** Real Estate Lead Bot\
 > **Level:** Beginner → Intermediate MVP\
 > **Stack:** React, FastAPI, PostgreSQL, n8n, AI\
@@ -18,7 +332,11 @@ memory for developers and AI coding agents.
 **Overall Status:** In Progress\
 **Current Sprint:** Sprint 0 --- Documentation & Foundation\
 **Current Phase:** Documentation\
-**Current Task:** DOC-016 --- Cross-check project contracts\
+**Current Task:** 
+SETUP-002 — Create/verify environment variable template.
+
+Status:
+Not Started
 **Next Task:** Begin Phase 1 project setup\
 **Production Deployment:** Not Started\
 **Production Target:** Existing VPS\
