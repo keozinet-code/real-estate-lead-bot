@@ -1,118 +1,44 @@
-> **Project:** Real Estate Lead Bot\
-> **Level:** Beginner → Intermediate MVP\
-> **Stack:** React, FastAPI, PostgreSQL, n8n, AI\
-> **Production target:** Existing VPS using Docker Compose and Nginx
-
 # Real Estate Lead Bot
 
-An educational MVP that captures real-estate enquiries, extracts
-structured requirements with AI, qualifies leads, stores them in
-PostgreSQL, routes them with n8n, and supports sales follow-up.
+Implementation-ready MVP foundation for converting property enquiries into structured, qualified leads.
 
-## Architecture
+## Flow
 
-``` text
-Customer
-→ React
-→ FastAPI
-→ n8n
-→ AI Extraction
-→ Lead Qualification
-→ PostgreSQL
-→ Sales Notification
-→ Customer Response
+```text
+Customer → React → FastAPI → n8n → AI extraction
+                              → deterministic qualification
+                              → PostgreSQL
+                              → sales notification
+                              → customer response
 ```
 
-Production runs on an existing VPS using Docker Compose and Nginx.
+## Current status
 
-## Documentation
+The repository foundation, database schema, local containers, FastAPI shell, React shell, and health endpoint are scaffolded. Lead submission, scoring, AI extraction, n8n workflows, notifications, E2E tests, and production deployment remain planned.
 
-``` text
-docs/
-├── PRD.md
-├── ARCHITECTURE.md
-├── DOMAIN.md
-├── DATA_MODEL.md
-├── API_SPEC.md
-├── WORKFLOWS.md
-├── AI_SPEC.md
-├── LEAD_QUALIFICATION_SPEC.md
-├── UI_UX_SPEC.md
-├── TESTING_SPEC.md
-└── DEPLOYMENT_SPEC.md
+## Structure
+
+```text
+backend/                 FastAPI, SQLAlchemy, Alembic, backend tests
+frontend/                React/Vite customer application
+n8n/workflows/           Sanitized workflow exports
+infrastructure/nginx/    Reverse-proxy configuration
+scripts/                 Repeatable operational helpers
+tests/                   Cross-component and E2E tests
+docs/                    Product and engineering contracts
 ```
 
-Project control files:
+See `docs/PROJECT_STRUCTURE.md` for ownership rules.
 
-``` text
-README.md
-AGENTS.md
-TASK.md
-IMPLEMENTATION.md
-```
+## Local start
 
-## Planned Repository Structure
+1. Copy `.env.example` to `.env`.
+2. Replace every `CHANGE_ME`.
+3. Run `docker compose up --build`.
+4. Check `http://localhost:8000/health`.
+5. Open `http://localhost:5173` and n8n at `http://localhost:5678`.
 
-``` text
-real-estate-lead-bot/
-├── README.md
-├── AGENTS.md
-├── TASK.md
-├── IMPLEMENTATION.md
-├── docker-compose.yml
-├── .env.example
-├── docs/
-├── frontend/
-├── backend/
-├── database/
-├── n8n/
-│   └── workflows/
-└── tests/
-```
+Run migrations with `docker compose exec backend alembic upgrade head`.
+Run backend tests with `docker compose exec backend pytest`.
 
-## Core Lead Fields
-
-``` text
-name
-email
-phone
-property_type
-location
-bedrooms
-budget
-intent
-timeline
-```
-
-## Qualification
-
-``` text
-Phone +10
-Budget +20
-Location +15
-Property type +15
-Buying soon +25
-Clear requirements +15
-
-80–100 HOT
-50–79  WARM
-0–49   COLD
-```
-
-## Development Workflow
-
-1.  Read the relevant specification.
-2.  Select a task from `TASK.md`.
-3.  Inspect existing code before changing it.
-4.  Implement the smallest coherent change.
-5.  Run relevant tests.
-6.  Update `TASK.md`.
-7.  Record actual work in `IMPLEMENTATION.md`.
-
-## Production
-
-Deployment assumes an existing accessible VPS. The application stack is
-deployed using Docker Compose with React, FastAPI, PostgreSQL, n8n, and
-Nginx.
-
-See `docs/DEPLOYMENT_SPEC.md`.
+Before editing, read `AGENTS.md`, `TASK.md`, `IMPLEMENTATION.md`, and the relevant file under `docs/`.
