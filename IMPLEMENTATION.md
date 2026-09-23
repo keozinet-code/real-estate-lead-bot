@@ -5,29 +5,33 @@
 ## Snapshot
 
 - Overall: In progress
-- Current phase: Backend foundation and contract cross-check
+- Current phase: Backend lead intake
 - Production: Not started
-- Blocker: exact “buying soon” and “clear requirements” rules are unresolved
-- Next: QUAL-001 and QUAL-002
+- Active blocker: none for repository/service implementation
+- Next: API-004 and API-005
 
-## 2026-09-22 — Repository scaffolding
+## 2026-09-23 — Deterministic lead qualification
 
 Implemented on `chore/repository-scaffolding`:
 
-- Layered backend directories: API, core, DB, models, schemas, repositories, services
-- FastAPI application factory, CORS, versioned router, and `GET /health`
-- Safe settings default without published database credentials
-- Pydantic health/error/lead schemas and SQLAlchemy session dependency
-- Uvicorn backend container command
-- React/Vite/TypeScript application shell
-- PostgreSQL, backend, frontend, and n8n local Compose services
-- n8n workflow versioning convention and persistent storage
-- Nginx, scripts, and test ownership boundaries
-- Backend health test
-- Corrected duplicate and contradictory tracker entries
-- Standardized `postgresql+psycopg` configuration
+- Shared domain enums and immutable qualification input/result types
+- Exact 90-day “buying soon” rule with days, weeks, months, number words, and immediate phrases
+- Exact “clear requirements” rule
+- Deterministic six-rule scoring with matched-rule audit output
+- COLD/WARM/HOT category derivation and invalid-score protection
+- Database model reuse of shared domain enums
+- Unit tests for 0/49/50/79/80/100 boundaries, invalid scores, timeline behavior, completeness, 100-point lead, and empty lead
+- Updated qualification specification and task tracker
 
-Verification for this GitHub change is structural. Runtime containers and tests have not been executed in this environment and must not be recorded as passing.
+Verification:
+
+- Local standard-library smoke test: PASS
+- Complete Lekki ₦80m lead within three months: 100/HOT
+- Full pytest suite: NOT RUN because pytest is not installed in the execution environment; the repository development requirements include pytest
+
+## 2026-09-22 — Repository scaffolding
+
+Implemented the layered FastAPI and React shells, local Compose services, n8n and infrastructure boundaries, health endpoint/test, safe settings, and corrected trackers. GitHub structure was verified; container execution was not performed.
 
 ## Previously verified
 
@@ -42,8 +46,10 @@ On 2026-09-16: initial directories, environment template, ignored `.env`, Git co
 | Repository structure | Scaffolded |
 | PostgreSQL/Alembic | Implemented |
 | FastAPI shell/health | Scaffolded |
-| Lead API/qualification/AI/n8n | Not started |
+| Qualification | Implemented and smoke-tested |
+| Lead API | Not started |
+| AI/n8n | Not started |
 | React shell | Scaffolded |
 | Enquiry UI | Not started |
-| Tests | Health test only |
+| Tests | Health and qualification tests added |
 | Production deployment | Not started |

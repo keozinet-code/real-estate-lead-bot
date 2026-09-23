@@ -1,3 +1,14 @@
 # Services
 
-Services coordinate business rules and integrations. Planned modules are `qualification.py`, `n8n_client.py`, and `lead_service.py`. AI extraction must never authoritatively calculate the final score.
+Services coordinate business rules and integrations.
+
+Implemented:
+
+- `qualification.py` — deterministic scoring, category classification, and matched-rule audit output
+
+Planned:
+
+- `n8n_client.py` — bounded webhook integration
+- `lead_service.py` — lead intake orchestration
+
+AI extraction must never authoritatively calculate the final score.
