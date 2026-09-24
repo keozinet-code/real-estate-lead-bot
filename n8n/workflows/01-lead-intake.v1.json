@@ -1,0 +1,138 @@
+{
+  "name": "PrimeHomes - Lead Intake v1",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "authentication": "headerAuth",
+        "httpMethod": "POST",
+        "path": "lead-intake-v1",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-lead-intake",
+      "name": "Authenticated Lead Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-760, 120],
+      "webhookId": "primehomes-lead-intake-v1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const source = $json.body ?? $json;\nconst required = ['lead_id', 'idempotency_key', 'message', 'lead_score', 'lead_category'];\nfor (const field of required) {\n  if (source[field] === undefined || source[field] === null || source[field] === '') {\n    throw new Error('Missing required field: ' + field);\n  }\n}\nif (!Number.isInteger(source.lead_score) || source.lead_score < 0 || source.lead_score > 100) {\n  throw new Error('Invalid lead_score');\n}\nif (!['HOT', 'WARM', 'COLD'].includes(source.lead_category)) {\n  throw new Error('Invalid lead_category');\n}\nconst allowed = ['lead_id','idempotency_key','name','email','phone','message','property_type','location','bedrooms','budget','intent','timeline','lead_score','lead_category','human_agent'];\nconst clean = {};\nfor (const key of allowed) clean[key] = source[key] ?? null;\nclean.message = String(clean.message).trim().slice(0, 5000);\nclean.idempotency_key = String(clean.idempotency_key).trim().slice(0, 128);\nreturn [{ json: clean }];"
+      },
+      "id": "sanitize-payload",
+      "name": "Validate and Sanitize",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-520, 120]
+    },
+    {
+      "parameters": {
+        "jsCode": "const state = $getWorkflowStaticData('global');\nstate.processedKeys ??= {};\nconst key = $json.idempotency_key;\nreturn [{ json: { ...$json, duplicate: Boolean(state.processedKeys[key]) } }];"
+      },
+      "id": "duplicate-check",
+      "name": "Duplicate Guard",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-280, 120]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.duplicate }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "if-duplicate",
+      "name": "Already Processed?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [-40, 120]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { accepted: true, duplicate: true, workflow: 'lead-intake-v1' } }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "respond-duplicate",
+      "name": "Respond Duplicate",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [220, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $json;\nconst route = item.human_agent ? 'HUMAN_AGENT' : item.lead_category;\nreturn [{ json: { ...item, route } }];"
+      },
+      "id": "route-lead",
+      "name": "Prepare Route",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 240]
+    },
+    {
+      "parameters": {
+        "jsCode": "const state = $getWorkflowStaticData('global');\nstate.processedKeys ??= {};\nstate.processedKeys[$json.idempotency_key] = new Date().toISOString();\nconst keys = Object.keys(state.processedKeys);\nif (keys.length > 5000) {\n  for (const key of keys.slice(0, keys.length - 5000)) delete state.processedKeys[key];\n}\nreturn [{ json: $json }];"
+      },
+      "id": "mark-processed",
+      "name": "Mark Processed",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 240]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { accepted: true, duplicate: false, workflow: 'lead-intake-v1' } }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "respond-accepted",
+      "name": "Respond Accepted",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [700, 240]
+    }
+  ],
+  "connections": {
+    "Authenticated Lead Webhook": {
+      "main": [[{"node": "Validate and Sanitize", "type": "main", "index": 0}]]
+    },
+    "Validate and Sanitize": {
+      "main": [[{"node": "Duplicate Guard", "type": "main", "index": 0}]]
+    },
+    "Duplicate Guard": {
+      "main": [[{"node": "Already Processed?", "type": "main", "index": 0}]]
+    },
+    "Already Processed?": {
+      "main": [
+        [{"node": "Respond Duplicate", "type": "main", "index": 0}],
+        [{"node": "Prepare Route", "type": "main", "index": 0}]
+      ]
+    },
+    "Prepare Route": {
+      "main": [[{"node": "Mark Processed", "type": "main", "index": 0}]]
+    },
+    "Mark Processed": {
+      "main": [[{"node": "Respond Accepted", "type": "main", "index": 0}]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Africa/Lagos"
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}

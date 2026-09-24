@@ -5,56 +5,60 @@
 ## Snapshot
 
 - Overall: In progress
-- Current phase: n8n integration
+- Current phase: AI extraction
 - Production: Not started
-- Next: API-008 and N8N-001
+- Next: AI-001 through AI-003
 
-## 2026-09-24 — Lead repository, API, and idempotency
+## 2026-09-24 — FastAPI to n8n integration
 
 Implemented on `chore/repository-scaffolding`:
 
-- SQLAlchemy lead repository boundary
-- Lead service coordinating qualification, persistence, and duplicate handling
-- `POST /api/v1/leads`
-- Required validated `Idempotency-Key` header
-- Unique nullable idempotency column and backward-compatible Alembic migration
-- Concurrent unique-key race recovery
-- Expanded input/output schemas with score, category, and duplicate state
-- Service tests for 100/HOT persistence and repeated-key behavior
-- API tests for 201 new, 200 duplicate, and 422 missing-key responses
-- Synchronized API and data-model specifications
+- Allow-listed Pydantic workflow payload
+- Authenticated `X-Webhook-Token` delivery
+- Configurable timeout constrained to 1–30 seconds
+- Safe timeout, network, 4xx, 5xx, and invalid-response handling
+- No hidden automatic HTTP retry
+- `workflow_pending`, `workflow_dispatched`, and
+  `workflow_failed` processing states
+- Same-key retry only for failed workflow dispatch
+- n8n client tests using an in-memory HTTP transport
+- Sanitized `01-lead-intake.v1.json` workflow
+- Sanitized `99-error-handler.v1.json` workflow
+- Header Auth credential setup documentation
+- Defensive n8n duplicate check and bounded static-data retention
+- Synchronized API/workflow specifications and environment template
 
 Verification:
 
 - Python syntax compilation: PASS
-- Source-level contract inspection: PASS
-- Full pytest suite: NOT RUN in this execution environment because
-  project dependencies are not installed
-- PostgreSQL migration/integration test: NOT RUN
+- Workflow JSON parsing: PASS
+- Static workflow connection/node-reference validation: PASS
+- Source-level payload/secret review: PASS
+- Full pytest suite: NOT RUN because project dependencies are not
+  installed in this execution environment
+- n8n import/execution: NOT RUN; requires a running configured instance
+
+## 2026-09-24 — Lead repository, API, and idempotency
+
+Implemented repository/service/API boundaries, required idempotency,
+backward-compatible migration, race recovery, and tests. Syntax and
+contracts passed; PostgreSQL integration remains pending.
 
 ## 2026-09-23 — Deterministic lead qualification
 
-Implemented shared domain types, exact qualification rules, scoring,
-category derivation, audit output, and unit tests. Local qualification
-smoke test: PASS.
-
-## 2026-09-22 — Repository scaffolding
-
-Implemented the layered FastAPI/React shells, Compose services, n8n and
-infrastructure boundaries, health endpoint/test, safe settings, and
-project trackers.
+Implemented shared domain types, exact rules, scoring, categories, audit
+output, and tests. Local qualification smoke test: PASS.
 
 ## Components
 
 | Component | Status |
 |---|---|
-| Repository structure | Scaffolded |
-| PostgreSQL/Alembic | Initial schema implemented; idempotency migration added |
-| FastAPI health | Implemented |
+| PostgreSQL/Alembic | Schema and migrations implemented; live verification pending |
+| Lead API/idempotency | Implemented; full tests pending |
 | Qualification | Implemented and smoke-tested |
-| Lead repository/service/API | Implemented; integration verification pending |
-| Idempotency | Implemented; PostgreSQL verification pending |
-| AI/n8n | Not started |
+| FastAPI-to-n8n client | Implemented and syntax-verified |
+| n8n intake/error exports | Implemented and JSON-verified |
+| AI extraction | Not started |
 | React shell | Scaffolded |
 | Enquiry UI | Not started |
 | Production deployment | Not started |

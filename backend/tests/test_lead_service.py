@@ -63,7 +63,8 @@ def test_service_qualifies_and_persists_new_lead() -> None:
     assert not result.duplicate
     assert result.lead.lead_score == 100
     assert result.lead.lead_category is LeadCategory.HOT
-    assert result.lead.processing_status == "qualified"
+    assert result.lead.processing_status == "workflow_pending"
+    assert result.should_dispatch
 
 
 def test_service_returns_existing_lead_for_duplicate_key() -> None:
@@ -84,4 +85,27 @@ def test_service_returns_existing_lead_for_duplicate_key() -> None:
 
     assert second.duplicate
     assert second.lead.id == first.lead.id
+    assert not second.should_dispatch
+    assert len(repository.by_key) == 1
+
+
+def test_failed_workflow_is_retryable_without_new_lead() -> None:
+    repository = FakeRepository()
+    service = LeadService(repository=repository)
+    session = FakeSession()
+    first = service.submit(
+        session=session,
+        payload=complete_payload(),
+        idempotency_key="request-12345",
+    )
+    first.lead.processing_status = "workflow_failed"
+
+    retry = service.submit(
+        session=session,
+        payload=complete_payload(),
+        idempotency_key="request-12345",
+    )
+
+    assert retry.duplicate
+    assert retry.should_dispatch
     assert len(repository.by_key) == 1

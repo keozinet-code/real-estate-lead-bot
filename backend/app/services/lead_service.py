@@ -14,6 +14,7 @@ from app.services.qualification import qualify_lead
 class LeadSubmission:
     lead: Lead
     duplicate: bool
+    should_dispatch: bool
 
 
 class LeadService:
@@ -34,7 +35,12 @@ class LeadService:
             idempotency_key,
         )
         if existing is not None:
-            return LeadSubmission(lead=existing, duplicate=True)
+            return LeadSubmission(
+                lead=existing,
+                duplicate=True,
+                should_dispatch=existing.processing_status
+                == "workflow_failed",
+            )
 
         qualification = qualify_lead(
             LeadQualificationInput(
@@ -61,7 +67,7 @@ class LeadService:
             timeline=payload.timeline,
             lead_score=qualification.score,
             lead_category=qualification.category,
-            processing_status="qualified",
+            processing_status="workflow_pending",
             human_agent=False,
         )
 
@@ -77,9 +83,36 @@ class LeadService:
             )
             if existing is None:
                 raise
-            return LeadSubmission(lead=existing, duplicate=True)
+            return LeadSubmission(
+                lead=existing,
+                duplicate=True,
+                should_dispatch=existing.processing_status
+                == "workflow_failed",
+            )
 
-        return LeadSubmission(lead=lead, duplicate=False)
+        return LeadSubmission(
+            lead=lead,
+            duplicate=False,
+            should_dispatch=True,
+        )
+
+    def mark_workflow_dispatched(
+        self,
+        session: Session,
+        lead: Lead,
+    ) -> None:
+        lead.processing_status = "workflow_dispatched"
+        session.commit()
+        session.refresh(lead)
+
+    def mark_workflow_failed(
+        self,
+        session: Session,
+        lead: Lead,
+    ) -> None:
+        lead.processing_status = "workflow_failed"
+        session.commit()
+        session.refresh(lead)
 
 
 def get_lead_service() -> LeadService:

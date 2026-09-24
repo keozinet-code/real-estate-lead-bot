@@ -1,9 +1,21 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Header, Response, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    Header,
+    HTTPException,
+    Response,
+    status,
+)
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
+from app.integrations.n8n_client import (
+    N8nClient,
+    N8nError,
+    get_n8n_client,
+)
 from app.schemas.lead import LeadAccepted, LeadCreate
 from app.services.lead_service import LeadService, get_lead_service
 
@@ -31,12 +43,37 @@ def submit_lead(
     idempotency_key: IdempotencyKey,
     session: Annotated[Session, Depends(get_db)],
     service: Annotated[LeadService, Depends(get_lead_service)],
+    n8n_client: Annotated[N8nClient, Depends(get_n8n_client)],
 ) -> LeadAccepted:
     submission = service.submit(
         session=session,
         payload=payload,
         idempotency_key=idempotency_key,
     )
+    if (
+        n8n_client.enabled
+        and submission.should_dispatch
+    ):
+        try:
+            n8n_client.dispatch(submission.lead)
+            service.mark_workflow_dispatched(
+                session,
+                submission.lead,
+            )
+        except N8nError as exc:
+            service.mark_workflow_failed(
+                session,
+                submission.lead,
+            )
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail=(
+                    "Your enquiry was saved, but workflow processing "
+                    "is temporarily unavailable. Retry with the same "
+                    "Idempotency-Key."
+                ),
+            ) from exc
+
     if submission.duplicate:
         response.status_code = status.HTTP_200_OK
 

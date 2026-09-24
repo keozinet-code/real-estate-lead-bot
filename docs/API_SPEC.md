@@ -71,9 +71,18 @@ internal secrets.
 
 ## n8n integration
 
-FastAPI will call the configured production n8n webhook using an
-environment variable. Timeout, authentication, payload, response, retry,
-and failure behavior remain part of the next integration phase.
+When n8n is enabled, FastAPI sends an allow-listed lead payload to the
+configured production webhook with `X-Webhook-Token` authentication and
+the same idempotency key. The request uses a configurable timeout of at
+most 30 seconds and performs no hidden automatic retry.
+
+If n8n accepts the request, the stored status becomes
+`workflow_dispatched`. If the request times out, fails, is rejected, or
+returns invalid JSON, the status becomes `workflow_failed` and the API
+returns a safe `503`.
+
+The lead remains stored. Retrying with the same idempotency key retries
+only failed workflow dispatch and never creates another lead row.
 
 ## CORS
 

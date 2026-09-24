@@ -5,6 +5,7 @@ from fastapi.testclient import TestClient
 
 from app.db.session import get_db
 from app.domain.lead import LeadCategory
+from app.integrations.n8n_client import get_n8n_client
 from app.main import app
 from app.services.lead_service import get_lead_service
 
@@ -21,6 +22,7 @@ class StubLead:
 class StubSubmission:
     lead: StubLead
     duplicate: bool
+    should_dispatch: bool = False
 
 
 class StubService:
@@ -37,6 +39,10 @@ class StubService:
             ),
             duplicate=self.duplicate,
         )
+
+
+class DisabledN8nClient:
+    enabled = False
 
 
 def fake_db() -> object:
@@ -61,6 +67,7 @@ def request_body() -> dict[str, object]:
 def test_create_lead_returns_201() -> None:
     app.dependency_overrides[get_db] = fake_db
     app.dependency_overrides[get_lead_service] = lambda: StubService()
+    app.dependency_overrides[get_n8n_client] = DisabledN8nClient
     client = TestClient(app)
 
     response = client.post(
@@ -81,6 +88,7 @@ def test_duplicate_lead_returns_original_with_200() -> None:
     app.dependency_overrides[get_lead_service] = lambda: StubService(
         duplicate=True
     )
+    app.dependency_overrides[get_n8n_client] = DisabledN8nClient
     client = TestClient(app)
 
     response = client.post(
