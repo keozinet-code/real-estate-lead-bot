@@ -3,7 +3,7 @@
 ## Snapshot
 
 - Application development: Complete
-- Automated verification: Implemented; CI is the release gate
+- Automated verification: Complete; CI is green
 - Production packaging: Complete
 - Live deployment: Not performed; requires authorized VPS, DNS, TLS, and secrets
 
@@ -31,8 +31,9 @@ Local verification in this stage:
 - New Python source compilation: PASS
 - Shell script syntax: PASS
 - JSON workflow validation: PASS (from preceding stages)
-- Full backend/PostgreSQL suite: delegated to CI because the local scratch
-  environment is not the complete checked-out repository
+- Backend/PostgreSQL CI: PASS — migrations applied and 39 tests passed
+- Frontend CI: PASS — dependency install, 4 tests, and production build
+- Contract CI: PASS — workflow JSON and production Compose validation
 - Live n8n, AI provider, TLS, and VPS smoke tests: not run; environment required
 
 ## Component status
@@ -49,4 +50,3 @@ Local verification in this stage:
 | CI pipeline | Complete |
 | Production packaging/runbook | Complete |
 | Live production deployment | Awaiting authorized infrastructure |
-
