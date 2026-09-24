@@ -5,42 +5,41 @@
 ## Snapshot
 
 - Overall: In progress
-- Current phase: Frontend enquiry experience
+- Current phase: Cross-component integration testing
 - Production: Not started
-- Next: UI-001 through UI-004
+- Next: INT-001
 
-## 2026-09-24 — Validated AI extraction
+## 2026-09-24 — Frontend enquiry experience
 
 Implemented on `chore/repository-scaffolding`:
 
-- Versioned `lead-extraction-v1` prompt
-- Provider-neutral protocol and OpenAI-compatible HTTP adapter
-- Strict Pydantic output schema with extra-field rejection
-- Missing/ambiguous field tracking and ambiguity invariants
-- Explicit-field-over-AI merge before qualification
-- Safe provider/validation failure route to HUMAN_AGENT
-- Prompt version, missing fields, and ambiguous fields persisted
-- Backward-compatible AI audit Alembic migration
-- AI audit fields forwarded through the allow-listed n8n payload
-- Six semantic extraction scenarios plus duplicate provider-call guard
-- ADR-001 documenting the corrected AI trust boundary
-- Updated architecture, AI specification, task tracker, and environment
-  configuration
+- Responsive, mobile-first PrimeHomes enquiry interface
+- Typed API client matching the FastAPI lead contract
+- Full optional property/contact fields with required free-text enquiry
+- One generated idempotency key per submission, retained across retries
+- Loading, success, duplicate, API-validation, connectivity, and unexpected-response states
+- Accessible labels, fieldsets, live result/error regions, focus styling, and reduced-motion support
+- HOT/WARM/COLD result summary with a short customer-safe next step
+- API-client and component tests
+- Pinned frontend dependencies and production TypeScript build
 
 Verification:
 
-- Python syntax compilation: PASS
-- Prompt/package resource inspection: PASS
-- Workflow JSON parsing: PASS
-- Seven scenario contract coverage: source-inspected
-- Full pytest suite: NOT RUN because dependencies are unavailable
-- Live AI provider test: NOT RUN; requires configured credentials
+- `npm run build`: PASS
+- `npm test`: PASS — 2 test files, 4 tests
+- Responsive CSS and semantic markup: source-inspected
+- Live backend browser submission: NOT RUN; requires the full Compose stack
+
+## 2026-09-24 — Validated AI extraction
+
+Implemented a versioned prompt, provider-neutral adapter, strict structured
+validation, ambiguity tracking, safe HUMAN_AGENT fallback, audit persistence,
+and documented test scenarios. Syntax and workflow JSON validation passed.
 
 ## 2026-09-24 — FastAPI to n8n integration
 
 Implemented authenticated bounded workflow dispatch, safe failures,
-workflow states, n8n tests, and sanitized intake/error exports. Python
-and workflow JSON validation passed.
+workflow states, n8n tests, and sanitized intake/error exports.
 
 ## 2026-09-24 — Lead API and idempotency
 
@@ -57,6 +56,6 @@ race recovery, and tests.
 | AI extraction | Implemented and syntax-verified |
 | FastAPI-to-n8n | Implemented and syntax-verified |
 | n8n exports | JSON-verified; live import pending |
-| React shell | Scaffolded |
-| Enquiry UI | Not started |
+| React enquiry UI | Implemented; build and tests passing |
+| Cross-component E2E | Not started |
 | Production deployment | Not started |
