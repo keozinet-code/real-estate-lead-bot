@@ -1,136 +1,80 @@
-> **Project:** Real Estate Lead Bot\
-> **Level:** Beginner → Intermediate MVP\
-> **Stack:** React, FastAPI, PostgreSQL, n8n, AI\
-> **Production target:** Existing VPS using Docker Compose and Nginx
-
 # API Specification
 
-## 1. Purpose
-
-Define the MVP interface between the React frontend and FastAPI backend.
-
-## 2. Base URL
-
-Local example:
-
-``` text
-http://localhost:8000
-```
-
-Production example:
-
-``` text
-https://api.example.com
-```
-
-## 3. Health Endpoint
+## Health
 
 ### `GET /health`
 
-Response:
+Returns `200 {"status": "ok"}`.
 
-``` json
-{
-  "status": "ok"
-}
-```
-
-HTTP status: `200`.
-
-## 4. Submit Lead / Enquiry
-
-Recommended MVP endpoint:
+## Submit lead
 
 ### `POST /api/v1/leads`
 
+Every request must include:
+
+```text
+Idempotency-Key: <8-128 safe characters>
+```
+
+Allowed key characters are letters, numbers, dots, underscores, colons,
+and hyphens. The frontend should generate one UUID per user submission
+and reuse it when retrying that same submission.
+
 Example request:
 
-``` json
+```json
 {
   "name": "Amina Yusuf",
   "email": "amina@example.com",
   "phone": "08000000000",
-  "message": "I want to buy a 3-bedroom apartment in Lekki. My budget is ₦80 million and I want to buy within three months."
+  "message": "I want to buy a 3-bedroom apartment in Lekki.",
+  "property_type": "apartment",
+  "location": "Lekki",
+  "bedrooms": 3,
+  "budget": 80000000,
+  "intent": "buy",
+  "timeline": "within 3 months"
 }
 ```
 
-The backend should accept incomplete optional lead details because AI
-may extract information from `message`.
+Only `message` is required in the JSON body. Structured fields are
+optional because later AI processing may extract them from the message.
 
-Example successful response:
+New submission response: `201 Created`.
 
-``` json
+```json
 {
   "success": true,
   "lead_id": "uuid",
-  "status": "processed",
-  "message": "Your enquiry has been received."
+  "status": "qualified",
+  "message": "Your enquiry has been received.",
+  "lead_score": 100,
+  "lead_category": "HOT",
+  "duplicate": false
 }
 ```
 
-The final response schema must be kept synchronized with the frontend
-and implementation.
+Retrying the same key returns the original lead with `200 OK` and
+`"duplicate": true`. It must not create another row or trigger future
+duplicate workflow side effects.
 
-## 5. Validation
+## Validation
 
-Reject or safely handle:
+- Missing or invalid idempotency key: `422`
+- Malformed JSON or invalid fields: `422`
+- Empty or oversized message: `422`
+- Unexpected server failure: `500`
+- Dependency unavailable: `502` or `503`
 
--   Malformed JSON
--   Invalid field types
--   Invalid email when supplied
--   Empty enquiry
--   Oversized payloads
--   Unsupported values where constrained
+Error responses must not expose stack traces, credentials, keys, or
+internal secrets.
 
-## 6. Error Responses
+## n8n integration
 
-Recommended shape:
+FastAPI will call the configured production n8n webhook using an
+environment variable. Timeout, authentication, payload, response, retry,
+and failure behavior remain part of the next integration phase.
 
-``` json
-{
-  "success": false,
-  "error": {
-    "code": "VALIDATION_ERROR",
-    "message": "The request could not be processed."
-  }
-}
-```
+## CORS
 
-Do not expose stack traces, database credentials, API keys, or internal
-secrets.
-
-## 7. Status Codes
-
-Use appropriate HTTP status codes, including:
-
--   `200` / `201` success
--   `400` bad request
--   `422` validation error
--   `404` resource not found where relevant
--   `409` conflict/duplicate where applicable
--   `500` unexpected server failure
--   `502`/`503` dependency unavailable where appropriate
-
-## 8. n8n Integration
-
-FastAPI should call the configured production n8n webhook using an
-environment variable rather than a hardcoded URL.
-
-The integration should define:
-
--   Timeout
--   Authentication where required
--   Payload contract
--   Response contract
--   Retry/error behavior
-
-## 9. Idempotency
-
-Duplicate customer submissions must not cause uncontrolled duplicate
-records or notifications. Implement an idempotency/message identifier
-strategy during development.
-
-## 10. CORS
-
-Production CORS should allow only the required frontend origin(s), not
-unrestricted origins.
+Production must allow only approved frontend origins.
