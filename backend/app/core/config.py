@@ -21,8 +21,13 @@ class Settings(BaseSettings):
     n8n_webhook_token: SecretStr | None = None
     n8n_timeout_seconds: float = Field(default=5.0, gt=0, le=30)
 
+    ai_enabled: bool = False
+    ai_endpoint_url: str = (
+        "https://api.openai.com/v1/chat/completions"
+    )
     ai_api_key: SecretStr | None = None
     ai_model: str | None = None
+    ai_timeout_seconds: float = Field(default=15.0, gt=0, le=60)
 
     model_config = SettingsConfigDict(
         env_file=".env",

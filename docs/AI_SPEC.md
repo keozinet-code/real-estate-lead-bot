@@ -1,38 +1,24 @@
-> **Project:** Real Estate Lead Bot\
-> **Level:** Beginner → Intermediate MVP\
-> **Stack:** React, FastAPI, PostgreSQL, n8n, AI\
-> **Production target:** Existing VPS using Docker Compose and Nginx
+# AI Extraction Specification
 
-# AI Specification
+## Boundary
 
-## 1. Purpose
+AI extracts facts only. FastAPI validates its output, merges it with
+explicit customer fields, calculates the deterministic score, persists
+the lead, and then dispatches n8n.
 
-The AI component converts unstructured real-estate enquiries into
-structured information and helps produce appropriate conversational
-responses.
+The provider adapter accepts any OpenAI-compatible chat-completions
+endpoint. Provider configuration is external to source control.
 
-AI is a component of the system, not the entire system.
+## Prompt
 
-## 2. Responsibilities
+- File: `backend/app/prompts/lead_extraction_v1.txt`
+- Version: `lead-extraction-v1`
+- Temperature: `0`
+- Output: one JSON object, no prose
 
-AI may:
+## Exact structured output
 
--   Understand natural-language enquiries
--   Extract lead/property fields
--   Identify missing information
--   Identify ambiguity
--   Classify intent where appropriate
--   Produce concise customer-facing responses
--   Summarize conversation context
--   Trigger/support `HUMAN_AGENT`
-
-AI must not be responsible for authoritative deterministic lead scoring.
-
-## 3. Structured Output
-
-Target fields:
-
-``` json
+```json
 {
   "name": null,
   "email": null,
@@ -49,76 +35,42 @@ Target fields:
 }
 ```
 
-Exact schema must match implementation contracts.
+Unknown values are null. Extra keys are rejected. Supported intent values
+are `buy`, `rent`, `sell`, and `land`.
 
-## 4. Rules
+If a field is listed in `ambiguous_fields`, its scalar value must be
+null. Duplicate missing/ambiguous entries are removed during validation.
 
--   Never fabricate missing customer data.
--   Use `null` or an agreed empty representation for unknown fields.
--   Preserve uncertainty.
--   Do not convert an ambiguous budget into a confident number.
--   Extract only what the message supports.
--   Prefer structured output over prose for machine processing.
--   Validate model output before using it.
+## Merge rules
 
-## 5. Required Test Cases
+Validated fields explicitly supplied through the API always take
+priority. AI may fill only fields that are absent from the request.
+AI never changes the original enquiry or idempotency key.
 
-### Case 1 --- Buyer
+## Failure rules
 
-``` text
-I want to buy a 3-bedroom apartment in Lekki for ₦80m within 3 months.
-```
+Timeout, provider rejection, invalid JSON, extra keys, wrong types, or
+contradictory ambiguity produce a safe outcome:
 
-Expected core extraction:
+- preserve and store the original enquiry
+- do not fabricate extracted values
+- set `human_agent=true`
+- persist the prompt version and empty validated extraction
+- continue deterministic scoring only with confirmed explicit fields
+- route n8n to `HUMAN_AGENT`
 
-``` text
-intent = buy
-bedrooms = 3
-location = Lekki
-budget = 80000000
-timeline = 3 months
-```
+Secrets and raw provider error bodies must not be returned to customers.
 
-### Case 2 --- Rent
+## Required test scenarios
 
-``` text
-I need a 2-bedroom apartment to rent in Ikeja.
-```
+1. Buy: 3-bedroom apartment, Lekki, ₦80m, within 3 months
+2. Rent: 2-bedroom apartment, Ikeja
+3. Land: Ibadan, below ₦20m
+4. Incomplete enquiry: unknown fields remain null and are reported
+5. HUMAN_AGENT: explicit request sets escalation
+6. Ambiguous budget: budget remains null and is reported
+7. Duplicate request: the AI provider is called once for one
+   idempotency key
 
-### Case 3 --- Land
-
-``` text
-I need land in Ibadan below ₦20 million.
-```
-
-### Case 4 --- Incomplete Information
-
-The model should identify missing important information rather than
-invent it.
-
-### Case 5 --- HUMAN_AGENT
-
-Explicit request for a person should trigger escalation.
-
-### Case 6 --- Ambiguous Budget
-
-Ambiguous values should be flagged for clarification.
-
-### Case 7 --- Duplicate Message
-
-Duplicate protection belongs to the wider system; AI should not cause
-repeated side effects.
-
-## 6. Failure Handling
-
-Handle:
-
--   Timeout
--   Provider error
--   Invalid JSON
--   Missing required structured keys
--   Unexpected types
--   Refusal/unusable response
-
-The application should fail safely and preserve the original enquiry for
-recovery where appropriate.
+The tests use a fake provider. Live-provider semantic evaluation remains
+a separate smoke test because model output is probabilistic.

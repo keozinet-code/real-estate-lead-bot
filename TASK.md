@@ -10,7 +10,7 @@ Only verified work uses `[x] [Completed]`.
 | Project foundation | Completed |
 | Database | Completed |
 | Backend/API | In progress |
-| AI extraction | Not started |
+| AI extraction | Completed |
 | Lead qualification | Completed |
 | n8n automation | In progress |
 | Frontend features | Not started |
@@ -19,31 +19,34 @@ Only verified work uses `[x] [Completed]`.
 ## Completed
 
 - [x] [Completed] DOC-001–015 — Initial documentation suite
+- [x] [Completed] ADR-001 — Record AI extraction boundary
 - [x] [Completed] SETUP-001–006 — Application and repository foundation
-- [x] [Completed] DB-001–007 — Lead schema and idempotency migration
-- [x] [Completed] API-001–007 — Health, lead API, and idempotency
-- [x] [Completed] API-008 — Add bounded authenticated n8n client
-- [x] [Completed] QUAL-001–004 — Deterministic qualification and tests
-- [x] [Completed] N8N-001 — Add sanitized intake workflow export
-- [x] [Completed] N8N-002 — Add duplicate guard and error workflow export
+- [x] [Completed] DB-001–008 — Lead, idempotency, and AI audit migrations
+- [x] [Completed] API-001–008 — Lead API, idempotency, and n8n client
+- [x] [Completed] QUAL-001–004 — Deterministic qualification
+- [x] [Completed] N8N-001–002 — Intake and error workflow exports
+- [x] [Completed] AI-001 — Add versioned extraction prompt
+- [x] [Completed] AI-002 — Add strict structured-output validation
+- [x] [Completed] AI-003 — Add provider adapter and safe failure behavior
+- [x] [Completed] AI-004 — Merge extraction before scoring
+- [x] [Completed] AI-005 — Add seven documented test scenarios
 - [x] [Completed] TEST-001–002 — Health and qualification tests
 
 ## Next work
 
-- [ ] [In Progress] DOC-016 — Cross-check remaining contracts
-- [ ] [In Progress] TEST-003 — Service/API tests added; execution pending
-- [ ] [In Progress] TEST-004 — n8n client tests added; execution pending
+- [ ] [In Progress] DOC-016 — Final cross-contract review
+- [ ] [In Progress] TEST-003–004 — Backend tests added; execution pending
 - [ ] [Not Started] TEST-005 — Import and execute workflows in n8n
-- [ ] [Not Started] TEST-006 — PostgreSQL repository integration tests
-- [ ] [Not Started] AI-001 — Define versioned AI prompt
-- [ ] [Not Started] AI-002 — Validate structured AI extraction
-- [ ] [Not Started] AI-003 — Add documented AI test cases
-- [ ] [Not Started] N8N-003 — Attach AI extraction to intake workflow
-- [ ] [Not Started] UI-001 — Build and test enquiry interface
+- [ ] [Not Started] TEST-006 — PostgreSQL migration/integration tests
+- [ ] [Not Started] TEST-007 — Live-provider semantic smoke tests
+- [ ] [Not Started] UI-001 — Build enquiry form
+- [ ] [Not Started] UI-002 — Generate and reuse idempotency keys
+- [ ] [Not Started] UI-003 — Add loading, success, duplicate, and error states
+- [ ] [Not Started] UI-004 — Add accessibility and frontend tests
 - [ ] [Not Started] INT-001 — Add integration/E2E/failure tests
 - [ ] [Not Started] DEPLOY-001 — Production Compose, HTTPS, backups, observability
 
 ## Next task
 
-Implement validated AI extraction with a versioned prompt and the seven
-documented test scenarios, then attach it before deterministic scoring.
+Build the customer-facing React enquiry interface and connect it to the
+lead API with stable idempotency keys and accessible request states.

@@ -16,8 +16,13 @@ from app.integrations.n8n_client import (
     N8nError,
     get_n8n_client,
 )
+from app.integrations.ai_provider import (
+    OpenAICompatibleProvider,
+    get_ai_provider,
+)
 from app.schemas.lead import LeadAccepted, LeadCreate
-from app.services.lead_service import LeadService, get_lead_service
+from app.services.ai_extraction import AIExtractionService
+from app.services.lead_service import LeadService
 
 router = APIRouter(prefix="/leads", tags=["leads"])
 
@@ -32,6 +37,15 @@ IdempotencyKey = Annotated[
 ]
 
 
+def get_configured_lead_service(
+    provider: Annotated[
+        OpenAICompatibleProvider,
+        Depends(get_ai_provider),
+    ],
+) -> LeadService:
+    return LeadService(extractor=AIExtractionService(provider))
+
+
 @router.post(
     "",
     response_model=LeadAccepted,
@@ -42,7 +56,10 @@ def submit_lead(
     response: Response,
     idempotency_key: IdempotencyKey,
     session: Annotated[Session, Depends(get_db)],
-    service: Annotated[LeadService, Depends(get_lead_service)],
+    service: Annotated[
+        LeadService,
+        Depends(get_configured_lead_service),
+    ],
     n8n_client: Annotated[N8nClient, Depends(get_n8n_client)],
 ) -> LeadAccepted:
     submission = service.submit(

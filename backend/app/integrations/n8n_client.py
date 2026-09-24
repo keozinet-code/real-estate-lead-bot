@@ -40,6 +40,9 @@ class N8nPayload(BaseModel):
     lead_score: int = Field(ge=0, le=100)
     lead_category: LeadCategory
     human_agent: bool
+    missing_fields: list[str] = Field(default_factory=list)
+    ambiguous_fields: list[str] = Field(default_factory=list)
+    ai_prompt_version: str | None = None
 
     @classmethod
     def from_lead(cls, lead: Lead) -> "N8nPayload":
@@ -61,6 +64,9 @@ class N8nPayload(BaseModel):
             lead_score=lead.lead_score,
             lead_category=lead.lead_category,
             human_agent=lead.human_agent,
+            missing_fields=lead.missing_fields,
+            ambiguous_fields=lead.ambiguous_fields,
+            ai_prompt_version=lead.ai_prompt_version,
         )
 
 

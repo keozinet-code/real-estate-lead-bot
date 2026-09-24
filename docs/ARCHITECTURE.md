@@ -1,131 +1,42 @@
-> **Project:** Real Estate Lead Bot\
-> **Level:** Beginner → Intermediate MVP\
-> **Stack:** React, FastAPI, PostgreSQL, n8n, AI\
-> **Production target:** Existing VPS using Docker Compose and Nginx
-
 # System Architecture
 
-## 1. Purpose
+## Runtime flow
 
-This document defines the high-level technical architecture and
-responsibilities of each component.
-
-## 2. Architecture
-
-``` text
+```text
 Customer
-   ↓
-React UI
-   ↓
-FastAPI Backend
-   ↓
-n8n Workflow Engine
-   ├── AI Extraction
-   ├── Lead Qualification
-   ├── Database Operations
-   └── Notifications
-   ↓
-PostgreSQL
+→ React
+→ FastAPI request validation and idempotency lookup
+→ AI extraction adapter
+→ Pydantic structured-output validation
+→ Explicit-field merge
+→ Deterministic qualification
+→ PostgreSQL
+→ Authenticated n8n workflow
+→ Sales routing, notifications, and follow-up
 ```
 
-Production:
+Production remains one existing VPS behind Nginx using Docker Compose
+for React, FastAPI, PostgreSQL, and n8n.
 
-``` text
-Internet
-↓
-Domain / HTTPS
-↓
-Nginx
-↓
-Docker Compose on Existing VPS
-├── React
-├── FastAPI
-├── PostgreSQL
-└── n8n
-```
+## Responsibilities
 
-## 3. Component Responsibilities
+| Component | Responsibility |
+|---|---|
+| React | Customer form/chat, client validation, UI states |
+| FastAPI | Public API, AI trust boundary, deterministic scoring, persistence, idempotency, n8n invocation |
+| AI provider | Structured extraction only; no scores or side effects |
+| PostgreSQL | Durable lead, extraction audit, state, and idempotency |
+| n8n | Routing, notifications, CRM actions, follow-up, workflow errors |
+| Nginx | HTTPS and reverse proxy |
 
-### React
+## Design rules
 
--   Customer-facing enquiry interface
--   Form/chat interaction
--   Client-side validation
--   Loading, success, and error states
--   Calls FastAPI; it should not directly access PostgreSQL
+- AI output is untrusted until Pydantic validation succeeds.
+- Explicit customer fields override extracted fields.
+- Deterministic business rules have one implementation.
+- n8n never stores source-controlled credentials.
+- Duplicate requests must not repeat AI or workflow side effects.
+- Raw enquiries are preserved for recovery and human review.
 
-### FastAPI
-
--   Public application API
--   Request validation
--   Response schemas
--   Business/integration boundary
--   Database access where specified
--   n8n invocation
--   Error handling and logging
--   Health endpoint
-
-### n8n
-
--   Workflow orchestration
--   AI processing
--   Data normalization
--   Qualification orchestration
--   Database operations where designed
--   Routing
--   Sales notifications
--   Follow-up automation
-
-### AI
-
--   Natural-language understanding
--   Structured extraction
--   Missing-information detection
--   Ambiguity handling
--   Response assistance
--   `HUMAN_AGENT` escalation support
-
-AI must not be the authoritative implementation of deterministic
-scoring.
-
-### PostgreSQL
-
--   Permanent structured lead storage
--   Lead processing state where required
--   Audit-friendly timestamps
--   Queryable lead records
-
-### Nginx
-
--   Public reverse proxy
--   HTTPS entry point
--   Routing to frontend, backend, and approved n8n endpoints
-
-## 4. Design Principles
-
--   Keep the MVP modular but not microservice-heavy.
--   Separate probabilistic AI behavior from deterministic business
-    rules.
--   Treat API/data contracts as explicit.
--   Keep PostgreSQL and n8n state persistent.
--   Prefer one VPS and Docker Compose for the MVP.
--   Record architectural changes in documentation.
-
-## 5. Failure Boundaries
-
-The system must handle:
-
--   Invalid customer payload
--   AI timeout/failure
--   Invalid AI structured output
--   n8n unavailable
--   PostgreSQL unavailable
--   Notification failure
--   Duplicate submission
--   Frontend network failure
-
-## 6. Deployment Boundary
-
-The application is deployed to an already available VPS. Provisioning,
-operating-system installation, and general VPS administration are
-outside this project's deployment scope.
+See `docs/adr/ADR-001-ai-extraction-boundary.md` for the recorded
+architecture revision.

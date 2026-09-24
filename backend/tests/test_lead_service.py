@@ -4,6 +4,7 @@ from uuid import uuid4
 from app.domain.lead import LeadCategory, LeadIntent
 from app.models.lead import Lead
 from app.schemas.lead import LeadCreate
+from app.schemas.ai import AIExtractionOutcome, AIExtractionResult
 from app.services.lead_service import LeadService
 
 
@@ -33,6 +34,18 @@ class FakeSession:
 
     def rollback(self) -> None:
         pass
+
+
+class CountingExtractor:
+    def __init__(self) -> None:
+        self.calls = 0
+
+    def extract(self, message: str) -> AIExtractionOutcome:
+        self.calls += 1
+        return AIExtractionOutcome(
+            extraction=AIExtractionResult(),
+            prompt_version="test-v1",
+        )
 
 
 def complete_payload() -> LeadCreate:
@@ -69,7 +82,11 @@ def test_service_qualifies_and_persists_new_lead() -> None:
 
 def test_service_returns_existing_lead_for_duplicate_key() -> None:
     repository = FakeRepository()
-    service = LeadService(repository=repository)
+    extractor = CountingExtractor()
+    service = LeadService(
+        repository=repository,
+        extractor=extractor,
+    )
     session = FakeSession()
 
     first = service.submit(
@@ -87,6 +104,7 @@ def test_service_returns_existing_lead_for_duplicate_key() -> None:
     assert second.lead.id == first.lead.id
     assert not second.should_dispatch
     assert len(repository.by_key) == 1
+    assert extractor.calls == 1
 
 
 def test_failed_workflow_is_retryable_without_new_lead() -> None:

@@ -8,6 +8,7 @@ from sqlalchemy import (
     DateTime,
     Enum,
     Integer,
+    JSON,
     Numeric,
     String,
     Text,
@@ -119,6 +120,20 @@ class Lead(Base):
         Boolean,
         nullable=False,
         default=False,
+    )
+    missing_fields: Mapped[list[str]] = mapped_column(
+        JSON,
+        nullable=False,
+        default=list,
+    )
+    ambiguous_fields: Mapped[list[str]] = mapped_column(
+        JSON,
+        nullable=False,
+        default=list,
+    )
+    ai_prompt_version: Mapped[str | None] = mapped_column(
+        String(50),
+        nullable=True,
     )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
