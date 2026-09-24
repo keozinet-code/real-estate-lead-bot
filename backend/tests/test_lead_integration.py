@@ -26,7 +26,7 @@ class DisabledN8nClient:
     enabled = False
 
 
-def test_db() -> Generator[Session, None, None]:
+def override_db() -> Generator[Session, None, None]:
     with TestingSession() as session:
         yield session
 
@@ -37,7 +37,7 @@ def configured_service() -> LeadService:
 
 def setup_module() -> None:
     Base.metadata.create_all(engine)
-    app.dependency_overrides[get_db] = test_db
+    app.dependency_overrides[get_db] = override_db
     app.dependency_overrides[get_configured_lead_service] = configured_service
     app.dependency_overrides[get_n8n_client] = DisabledN8nClient
 
@@ -75,4 +75,3 @@ def test_api_persists_qualified_lead_and_deduplicates_retry() -> None:
         leads = session.scalars(select(Lead)).all()
         assert len(leads) == 1
         assert leads[0].idempotency_key == "integration-lead-001"
-
