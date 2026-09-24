@@ -28,11 +28,12 @@ Only verified work uses `[x] [Completed]`.
 - [x] [Completed] API-006 — Implement `POST /api/v1/leads`
 - [x] [Completed] API-007 — Implement idempotency
 - [x] [Completed] QUAL-001–004 — Deterministic qualification and tests
-- [x] [Completed] TEST-001–003 — Health, qualification, service, and API tests
+- [x] [Completed] TEST-001–002 — Health and qualification tests
 
 ## Next work
 
 - [ ] [In Progress] DOC-016 — Cross-check remaining contracts
+- [ ] [In Progress] TEST-003 — Service/API tests added; full execution pending
 - [ ] [Not Started] API-008 — Connect n8n with bounded timeout/error handling
 - [ ] [Not Started] TEST-004 — Add PostgreSQL repository integration tests
 - [ ] [Not Started] N8N-001 — Implement authenticated intake webhook
