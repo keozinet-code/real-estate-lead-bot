@@ -64,8 +64,8 @@ class N8nPayload(BaseModel):
             lead_score=lead.lead_score,
             lead_category=lead.lead_category,
             human_agent=lead.human_agent,
-            missing_fields=lead.missing_fields,
-            ambiguous_fields=lead.ambiguous_fields,
+            missing_fields=lead.missing_fields or [],
+            ambiguous_fields=lead.ambiguous_fields or [],
             ai_prompt_version=lead.ai_prompt_version,
         )
 
