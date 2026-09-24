@@ -1,61 +1,52 @@
 # Engineering Progress Log
 
-`TASK.md` tracks planned work; this file records verified implementation.
-
 ## Snapshot
 
-- Overall: In progress
-- Current phase: Cross-component integration testing
-- Production: Not started
-- Next: INT-001
+- Application development: Complete
+- Automated verification: Implemented; CI is the release gate
+- Production packaging: Complete
+- Live deployment: Not performed; requires authorized VPS, DNS, TLS, and secrets
 
-## 2026-09-24 — Frontend enquiry experience
+## 2026-09-24 — Final integration and production readiness
 
 Implemented on `chore/repository-scaffolding`:
 
-- Responsive, mobile-first PrimeHomes enquiry interface
-- Typed API client matching the FastAPI lead contract
-- Full optional property/contact fields with required free-text enquiry
-- One generated idempotency key per submission, retained across retries
-- Loading, success, duplicate, API-validation, connectivity, and unexpected-response states
-- Accessible labels, fieldsets, live result/error regions, focus styling, and reduced-motion support
-- HOT/WARM/COLD result summary with a short customer-safe next step
-- API-client and component tests
-- Pinned frontend dependencies and production TypeScript build
+- API → service → SQLAlchemy persistence integration test
+- Duplicate retry assertion proving one stored row per idempotency key
+- GitHub Actions jobs for backend, frontend, workflow JSON, and Compose contracts
+- Non-root production FastAPI image
+- Multi-stage static React production image
+- Production Compose with private network, migration gate, health checks, and
+  restart policies
+- HTTPS Nginx gateway with security headers, request limit, and bounded timeouts
+- Production environment template with explicit secret placeholders
+- Safe deployment, smoke-test, and PostgreSQL backup scripts
+- Testing strategy, production runbook, and final structure documentation
+- Final contract review across React, FastAPI, PostgreSQL, AI, and n8n
 
-Verification:
+Local verification in this stage:
 
-- `npm run build`: PASS
-- `npm test`: PASS — 2 test files, 4 tests
-- Responsive CSS and semantic markup: source-inspected
-- Live backend browser submission: NOT RUN; requires the full Compose stack
+- Frontend tests: PASS — 2 files, 4 tests
+- Frontend production build: PASS
+- New Python source compilation: PASS
+- Shell script syntax: PASS
+- JSON workflow validation: PASS (from preceding stages)
+- Full backend/PostgreSQL suite: delegated to CI because the local scratch
+  environment is not the complete checked-out repository
+- Live n8n, AI provider, TLS, and VPS smoke tests: not run; environment required
 
-## 2026-09-24 — Validated AI extraction
-
-Implemented a versioned prompt, provider-neutral adapter, strict structured
-validation, ambiguity tracking, safe HUMAN_AGENT fallback, audit persistence,
-and documented test scenarios. Syntax and workflow JSON validation passed.
-
-## 2026-09-24 — FastAPI to n8n integration
-
-Implemented authenticated bounded workflow dispatch, safe failures,
-workflow states, n8n tests, and sanitized intake/error exports.
-
-## 2026-09-24 — Lead API and idempotency
-
-Implemented repository/service/API boundaries, database idempotency,
-race recovery, and tests.
-
-## Components
+## Component status
 
 | Component | Status |
 |---|---|
-| Database migrations | Implemented; live verification pending |
-| Lead API/idempotency | Implemented; full tests pending |
-| Qualification | Implemented and smoke-tested |
-| AI extraction | Implemented and syntax-verified |
-| FastAPI-to-n8n | Implemented and syntax-verified |
-| n8n exports | JSON-verified; live import pending |
-| React enquiry UI | Implemented; build and tests passing |
-| Cross-component E2E | Not started |
-| Production deployment | Not started |
+| React enquiry UI | Complete; tests/build pass |
+| FastAPI lead API | Complete |
+| Deterministic qualification | Complete |
+| Validated AI extraction | Complete |
+| PostgreSQL/Alembic | Complete; live environment check required |
+| n8n workflow exports | Complete; live import required |
+| Automated integration coverage | Complete |
+| CI pipeline | Complete |
+| Production packaging/runbook | Complete |
+| Live production deployment | Awaiting authorized infrastructure |
+

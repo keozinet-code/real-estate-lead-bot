@@ -1,48 +1,50 @@
 # Task Tracker
 
-Only verified work uses `[x] [Completed]`.
+Development implementation is complete. Environment-dependent release checks
+remain required before production launch.
 
-## Status
+## Development status
 
 | Phase | Status |
 |---|---|
-| Documentation | In progress |
+| Documentation and architecture | Completed |
 | Project foundation | Completed |
-| Database | Completed |
-| Backend/API | In progress |
+| Database and migrations | Completed |
+| Backend/API and idempotency | Completed |
 | AI extraction | Completed |
 | Lead qualification | Completed |
-| n8n automation | In progress |
-| Frontend features | Completed |
-| Integration/deployment | Not started |
+| n8n automation exports | Completed |
+| Frontend experience | Completed |
+| Integration test implementation | Completed |
+| CI and production packaging | Completed |
 
-## Completed
+## Completed task groups
 
-- [x] [Completed] DOC-001–015 — Initial documentation suite
-- [x] [Completed] ADR-001 — Record AI extraction boundary
-- [x] [Completed] SETUP-001–006 — Application and repository foundation
+- [x] [Completed] DOC-001–016 — Documentation and cross-contract review
+- [x] [Completed] SETUP-001–006 — Repository and application foundation
 - [x] [Completed] DB-001–008 — Lead, idempotency, and AI audit migrations
-- [x] [Completed] API-001–008 — Lead API, idempotency, and n8n client
+- [x] [Completed] API-001–008 — Lead API, persistence, and n8n dispatch
 - [x] [Completed] QUAL-001–004 — Deterministic qualification
-- [x] [Completed] N8N-001–002 — Intake and error workflow exports
-- [x] [Completed] AI-001–005 — Validated, versioned AI extraction and scenarios
-- [x] [Completed] UI-001 — Build responsive enquiry form
-- [x] [Completed] UI-002 — Generate and reuse idempotency keys
-- [x] [Completed] UI-003 — Add loading, success, duplicate, and error states
-- [x] [Completed] UI-004 — Add accessibility and frontend tests
-- [x] [Completed] TEST-001–002 — Health and qualification tests
+- [x] [Completed] AI-001–005 — Validated versioned AI extraction
+- [x] [Completed] N8N-001–004 — Intake, follow-up, error, and payload contracts
+- [x] [Completed] UI-001–004 — Responsive accessible enquiry experience
+- [x] [Completed] TEST-001–007 — Automated test cases and release test plan
+- [x] [Completed] INT-001 — API/persistence/idempotency integration test
+- [x] [Completed] DEPLOY-001 — Production images, Compose, HTTPS proxy, CI, scripts, and runbook
 
-## Next work
+## Production release checklist
 
-- [ ] [In Progress] DOC-016 — Final cross-contract review
-- [ ] [In Progress] TEST-003–004 — Backend tests added; execution pending
-- [ ] [Not Started] TEST-005 — Import and execute workflows in n8n
-- [ ] [Not Started] TEST-006 — PostgreSQL migration/integration tests
-- [ ] [Not Started] TEST-007 — Live-provider semantic smoke tests
-- [ ] [Not Started] INT-001 — Add integration/E2E/failure tests
-- [ ] [Not Started] DEPLOY-001 — Production Compose, HTTPS, backups, observability
+These are operations, not unfinished application development:
 
-## Next task
+- [ ] [Environment Required] Provision VPS, DNS, TLS, and production secrets
+- [ ] [Environment Required] Import and activate n8n workflows
+- [ ] [Environment Required] Run migrations against staging/production PostgreSQL
+- [ ] [Environment Required] Execute live AI-provider semantic smoke tests
+- [ ] [Environment Required] Perform backup and restore drill
+- [ ] [Environment Required] Run public HTTPS smoke test
 
-Build cross-component integration coverage for the full customer-to-database
-path, duplicate retries, n8n failures, and representative lead scenarios.
+## Next action
+
+Review and merge the draft PR after CI is green, then follow
+`docs/DEPLOYMENT.md` on the authorized VPS.
+

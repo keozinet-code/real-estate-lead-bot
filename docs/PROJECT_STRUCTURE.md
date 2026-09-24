@@ -4,31 +4,35 @@
 
 | Area | Responsibility |
 |---|---|
-| `frontend/` | Customer UI, client validation, API calls, UI states |
+| `frontend/` | Customer UI, API client, request states, frontend tests |
 | `backend/app/api/` | HTTP routes and transport boundary |
-| `backend/app/schemas/` | Validated API/integration contracts |
-| `backend/app/services/` | Business orchestration and integrations |
+| `backend/app/schemas/` | Validated API and AI contracts |
+| `backend/app/services/` | Business orchestration and deterministic qualification |
 | `backend/app/repositories/` | SQLAlchemy persistence operations |
-| `backend/app/models/` | Database entities |
-| `n8n/workflows/` | Workflow orchestration and routing |
-| `infrastructure/` | Proxy and deployment configuration |
-| `tests/` | Cross-component verification |
+| `backend/app/integrations/` | Bounded AI and n8n clients |
+| `backend/alembic/` | Versioned database migrations |
+| `n8n/workflows/` | Sanitized orchestration exports |
+| `infrastructure/nginx/` | HTTPS edge proxy configuration |
+| `scripts/` | Deployment, smoke testing, and backup operations |
+| `.github/workflows/` | Continuous verification |
+| `docs/` | Product, architecture, contracts, and runbooks |
 
-## Backend dependency direction
+## Dependency direction
 
 ```text
-API → service → repository → model → PostgreSQL
-          ↓
-     n8n/AI clients
+React → API → service → repository → PostgreSQL
+                 ↓
+           AI and n8n clients
 ```
 
-The foundation now includes PostgreSQL/Alembic, a FastAPI factory and health route, versioned API boundary, Pydantic contract scaffolding, database session dependency, React/Vite/TypeScript shell, n8n service and persistent volume, Nginx location, and a backend health test.
+AI output is untrusted until validated. Deterministic qualification never runs
+inside the model or n8n. React never scores or persists leads.
 
-## Next order
+## Environments
 
-1. Define “buying soon” and “clear requirements”.
-2. Implement and test deterministic scoring.
-3. Implement lead repository/service and `POST /api/v1/leads`.
-4. Add idempotency, n8n intake, and AI output validation.
-5. Build the enquiry UI and integration tests.
-6. Harden production Compose/Nginx.
+- `docker-compose.yml`: local development with mounted source and Vite
+- `docker-compose.prod.yml`: immutable production images, private network,
+  migration gate, health checks, and HTTPS gateway
+- `.env.example`: local configuration contract
+- `.env.production.example`: production configuration contract
+
