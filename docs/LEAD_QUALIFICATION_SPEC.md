@@ -1,84 +1,73 @@
-> **Project:** Real Estate Lead Bot\
-> **Level:** Beginner → Intermediate MVP\
-> **Stack:** React, FastAPI, PostgreSQL, n8n, AI\
-> **Production target:** Existing VPS using Docker Compose and Nginx
-
 # Lead Qualification Specification
 
-## 1. Purpose
+## Purpose
 
-Define a simple, explainable, deterministic MVP lead scoring system.
+Define an explainable, deterministic scoring system. AI extracts facts; application code calculates the score and category.
 
-## 2. Scoring
+## Scoring
 
-  Rule                      Points
-  ----------------------- --------
-  Phone present                 10
-  Budget present                20
-  Location present              15
-  Property type present         15
-  Buying soon                   25
-  Clear requirements            15
+| Confirmed rule | Points |
+|---|---:|
+| Phone present | 10 |
+| Budget present | 20 |
+| Location present | 15 |
+| Property type present | 15 |
+| Buying soon | 25 |
+| Clear requirements | 15 |
 
-Maximum score: `100`.
+Maximum: 100.
 
-## 3. Categories
+## Categories
 
-``` text
-0–49   → COLD
-50–79  → WARM
-80–100 → HOT
-```
+- 0–49: COLD
+- 50–79: WARM
+- 80–100: HOT
 
-## 4. Principles
+## Buying soon
 
--   Qualification must be deterministic.
--   The same validated input should produce the same score.
--   Do not let the LLM invent the final score.
--   Do not double-count a rule.
--   Only confirmed information earns points.
--   Missing information earns zero for that rule.
--   Scoring and category should be testable independently from AI.
+“Buying soon” means a confirmed actionable timeline no longer than 90 days.
 
-## 5. Buying Soon
+Accepted equivalents include:
 
-The implementation must define the exact timeline threshold for "buying
-soon" before coding. Once defined, record it in this specification and
-tests.
+- ASAP, immediately, or now
+- this week/month or next week/month
+- up to 90 days
+- up to 12 weeks
+- up to 3 months
 
-Until that threshold is explicitly agreed, do not silently invent one.
+Missing, ambiguous, or longer timelines earn zero. Examples such as “sometime,” “later,” “next year,” and “4 months” do not qualify. The rule applies to the lead's intended property action even though the historical field name remains `buying_soon`.
 
-## 6. Clear Requirements
+## Clear requirements
 
-The implementation must define the deterministic criteria for "clear
-requirements." Avoid asking the AI to subjectively assign these 15
-points without a validated rule.
+The 15 points are awarded only when all three core requirements are confirmed:
 
-## 7. Boundary Tests
+1. intent
+2. location
+3. property type
 
-Required:
+At least one actionable detail must also be confirmed:
 
--   Score `0` → COLD
--   Score `49` → COLD
--   Score `50` → WARM
--   Score `79` → WARM
--   Score `80` → HOT
--   Score `100` → HOT
+- bedrooms
+- budget
+- timeline
 
-Also test:
+Missing or whitespace-only strings are not confirmed. AI must not subjectively award these points.
 
--   Missing fields
--   No double counting
--   Invalid score prevention
--   Category always matches score
+## Determinism and validation
 
-## 8. Output
+- Each rule is evaluated once.
+- Missing information earns zero.
+- Identical validated input produces identical output.
+- Scores outside 0–100 are rejected.
+- Category is derived from score, never supplied by AI.
+- Qualification is independently testable without calling an AI provider.
 
-Example:
+## Required tests
 
-``` json
-{
-  "lead_score": 80,
-  "lead_category": "HOT"
-}
-```
+- Category boundaries: 0, 49, 50, 79, 80, 100
+- Invalid scores: -1 and 101
+- Timeline boundaries and common phrases
+- Missing/whitespace values
+- Clear-requirements completeness
+- Complete 100-point lead
+- No duplicate rule application

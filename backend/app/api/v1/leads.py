@@ -1,0 +1,109 @@
+from typing import Annotated
+
+from fastapi import (
+    APIRouter,
+    Depends,
+    Header,
+    HTTPException,
+    Response,
+    status,
+)
+from sqlalchemy.orm import Session
+
+from app.db.session import get_db
+from app.integrations.n8n_client import (
+    N8nClient,
+    N8nError,
+    get_n8n_client,
+)
+from app.integrations.ai_provider import (
+    OpenAICompatibleProvider,
+    get_ai_provider,
+)
+from app.schemas.lead import LeadAccepted, LeadCreate
+from app.services.ai_extraction import AIExtractionService
+from app.services.lead_service import LeadService
+
+router = APIRouter(prefix="/leads", tags=["leads"])
+
+IdempotencyKey = Annotated[
+    str,
+    Header(
+        alias="Idempotency-Key",
+        min_length=8,
+        max_length=128,
+        pattern=r"^[A-Za-z0-9._:-]+$",
+    ),
+]
+
+
+def get_configured_lead_service(
+    provider: Annotated[
+        OpenAICompatibleProvider,
+        Depends(get_ai_provider),
+    ],
+) -> LeadService:
+    return LeadService(extractor=AIExtractionService(provider))
+
+
+@router.post(
+    "",
+    response_model=LeadAccepted,
+    status_code=status.HTTP_201_CREATED,
+)
+def submit_lead(
+    payload: LeadCreate,
+    response: Response,
+    idempotency_key: IdempotencyKey,
+    session: Annotated[Session, Depends(get_db)],
+    service: Annotated[
+        LeadService,
+        Depends(get_configured_lead_service),
+    ],
+    n8n_client: Annotated[N8nClient, Depends(get_n8n_client)],
+) -> LeadAccepted:
+    submission = service.submit(
+        session=session,
+        payload=payload,
+        idempotency_key=idempotency_key,
+    )
+    if (
+        n8n_client.enabled
+        and submission.should_dispatch
+    ):
+        try:
+            n8n_client.dispatch(submission.lead)
+            service.mark_workflow_dispatched(
+                session,
+                submission.lead,
+            )
+        except N8nError as exc:
+            service.mark_workflow_failed(
+                session,
+                submission.lead,
+            )
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail=(
+                    "Your enquiry was saved, but workflow processing "
+                    "is temporarily unavailable. Retry with the same "
+                    "Idempotency-Key."
+                ),
+            ) from exc
+
+    if submission.duplicate:
+        response.status_code = status.HTTP_200_OK
+
+    lead = submission.lead
+    return LeadAccepted(
+        lead_id=lead.id,
+        status=lead.processing_status,
+        message=(
+            "Your enquiry has already been received."
+            if submission.duplicate
+            else "Your enquiry has been received."
+        ),
+        lead_score=lead.lead_score,
+        lead_category=lead.lead_category,
+        duplicate=submission.duplicate,
+    )

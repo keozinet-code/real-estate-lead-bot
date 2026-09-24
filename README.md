@@ -1,118 +1,68 @@
-> **Project:** Real Estate Lead Bot\
-> **Level:** Beginner → Intermediate MVP\
-> **Stack:** React, FastAPI, PostgreSQL, n8n, AI\
-> **Production target:** Existing VPS using Docker Compose and Nginx
-
 # Real Estate Lead Bot
 
-An educational MVP that captures real-estate enquiries, extracts
-structured requirements with AI, qualifies leads, stores them in
-PostgreSQL, routes them with n8n, and supports sales follow-up.
+A production-packaged MVP that converts property enquiries into structured,
+qualified, deduplicated leads and dispatches them to automated follow-up.
 
-## Architecture
+## Flow
 
-``` text
-Customer
-→ React
-→ FastAPI
-→ n8n
-→ AI Extraction
-→ Lead Qualification
-→ PostgreSQL
-→ Sales Notification
-→ Customer Response
+```text
+Customer → React → FastAPI → validated AI extraction
+                          → deterministic qualification
+                          → PostgreSQL
+                          → n8n → sales/customer follow-up
 ```
 
-Production runs on an existing VPS using Docker Compose and Nginx.
+## Capabilities
 
-## Documentation
+- Responsive and accessible customer enquiry interface
+- Typed, validated lead API with stable idempotency keys
+- Strict versioned AI extraction with ambiguity and HUMAN_AGENT safeguards
+- Deterministic HOT/WARM/COLD scoring
+- PostgreSQL persistence and Alembic migrations
+- Authenticated, allow-listed n8n dispatch
+- Versioned intake, follow-up, and error workflows
+- Automated frontend, backend, integration, and contract checks
+- Production Docker images, HTTPS Nginx, backups, and deployment runbook
 
-``` text
-docs/
-├── PRD.md
-├── ARCHITECTURE.md
-├── DOMAIN.md
-├── DATA_MODEL.md
-├── API_SPEC.md
-├── WORKFLOWS.md
-├── AI_SPEC.md
-├── LEAD_QUALIFICATION_SPEC.md
-├── UI_UX_SPEC.md
-├── TESTING_SPEC.md
-└── DEPLOYMENT_SPEC.md
+## Repository
+
+```text
+backend/                 FastAPI, SQLAlchemy, Alembic, tests
+frontend/                React/Vite customer application and tests
+n8n/workflows/           Sanitized workflow exports
+infrastructure/nginx/    Development and production proxy configuration
+scripts/                 Deployment, smoke test, and backup helpers
+docs/                    Product, engineering, testing, and operations contracts
+.github/workflows/       CI release gates
 ```
 
-Project control files:
+See `docs/PROJECT_STRUCTURE.md` for ownership boundaries.
 
-``` text
-README.md
-AGENTS.md
-TASK.md
-IMPLEMENTATION.md
+## Local development
+
+1. Copy `.env.example` to `.env` and replace every `CHANGE_ME`.
+2. Run `docker compose up --build`.
+3. Run migrations: `docker compose exec backend alembic upgrade head`.
+4. Open `http://localhost:5173`; health is at `http://localhost:8000/health`.
+
+Tests:
+
+```bash
+docker compose exec backend pytest
+docker compose exec frontend npm test
 ```
-
-## Planned Repository Structure
-
-``` text
-real-estate-lead-bot/
-├── README.md
-├── AGENTS.md
-├── TASK.md
-├── IMPLEMENTATION.md
-├── docker-compose.yml
-├── .env.example
-├── docs/
-├── frontend/
-├── backend/
-├── database/
-├── n8n/
-│   └── workflows/
-└── tests/
-```
-
-## Core Lead Fields
-
-``` text
-name
-email
-phone
-property_type
-location
-bedrooms
-budget
-intent
-timeline
-```
-
-## Qualification
-
-``` text
-Phone +10
-Budget +20
-Location +15
-Property type +15
-Buying soon +25
-Clear requirements +15
-
-80–100 HOT
-50–79  WARM
-0–49   COLD
-```
-
-## Development Workflow
-
-1.  Read the relevant specification.
-2.  Select a task from `TASK.md`.
-3.  Inspect existing code before changing it.
-4.  Implement the smallest coherent change.
-5.  Run relevant tests.
-6.  Update `TASK.md`.
-7.  Record actual work in `IMPLEMENTATION.md`.
 
 ## Production
 
-Deployment assumes an existing accessible VPS. The application stack is
-deployed using Docker Compose with React, FastAPI, PostgreSQL, n8n, and
-Nginx.
+Production is intentionally a separate configuration:
 
-See `docs/DEPLOYMENT_SPEC.md`.
+```bash
+cp .env.production.example .env.production
+# replace placeholders and configure DNS/TLS/n8n
+scripts/deploy.sh
+scripts/smoke-test.sh https://your-domain.example
+```
+
+Read `docs/DEPLOYMENT.md` before launch. Do not commit `.env.production`, TLS
+private keys, workflow credentials, or database dumps.
+

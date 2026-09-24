@@ -1,111 +1,81 @@
-> **Project:** Real Estate Lead Bot\
-> **Level:** Beginner → Intermediate MVP\
-> **Stack:** React, FastAPI, PostgreSQL, n8n, AI\
-> **Production target:** Existing VPS using Docker Compose and Nginx
-
 # Workflow Specification
 
-## 1. Main Workflow
+## FastAPI to n8n contract
 
-``` text
-Webhook
-↓
-Validate / Normalize
-↓
-AI Processing
-↓
-Extract Requirements
-↓
-Lead Qualification
-↓
-PostgreSQL
-↓
-IF / Routing
-├── HOT → Priority Sales Notification
-├── WARM → Standard Follow-up
-└── COLD → Standard Follow-up
-↓
-Customer Response
+FastAPI sends only allow-listed lead fields to:
+
+```text
+POST /webhook/lead-intake-v1
+X-Webhook-Token: <secret>
+Idempotency-Key: <same key used by the lead API>
 ```
 
-## 2. n8n Node Responsibilities
+Connection and total request time are bounded by
+`N8N_TIMEOUT_SECONDS` (default five seconds). The client performs no
+automatic retries. The caller retries the lead API using the same
+idempotency key.
 
-### Webhook
+Expected n8n response:
 
-Receives a validated request from FastAPI.
-
-### Validate / Edit Fields
-
-Normalizes expected fields and prepares a predictable payload.
-
-### AI Processing
-
-Extracts structured property requirements from the enquiry.
-
-### Qualification
-
-Applies deterministic scoring rules. This may be implemented in code or
-a clearly deterministic n8n step.
-
-### PostgreSQL
-
-Stores the processed lead.
-
-### IF / Routing
-
-Routes based on category, escalation state, or processing result.
-
-### Notification
-
-Sends relevant lead information to the sales team.
-
-### Response
-
-Returns an appropriate result to the calling application/customer.
-
-## 3. Error Workflow
-
-Failures should be handled explicitly:
-
-``` text
-Error
-↓
-Log useful context
-↓
-Avoid duplicate processing
-↓
-Return safe failure result
-↓
-Escalate when necessary
+```json
+{
+  "accepted": true,
+  "duplicate": false,
+  "workflow": "lead-intake-v1"
+}
 ```
 
-## 4. HUMAN_AGENT
+## Current intake workflow
 
-If the customer explicitly requests a human, or automation cannot safely
-continue, set/route:
-
-``` text
-HUMAN_AGENT
+```text
+Authenticated Webhook
+→ Validate and allow-list fields
+→ Defensive duplicate check
+→ Existing key ───────────────→ Respond duplicate
+→ New key
+→ Prepare HOT/WARM/COLD/HUMAN_AGENT route
+→ Mark processed
+→ Respond accepted
 ```
 
-and notify the appropriate human workflow.
+FastAPI/PostgreSQL remains the authoritative idempotency layer. n8n's
+static-data check is defense in depth and must not replace the database
+unique constraint.
 
-## 5. Duplicate Guard
+## Processing states
 
-The workflow should use a request/message identifier or equivalent
-strategy to avoid processing the same submission repeatedly.
+- `workflow_pending`: saved and eligible for dispatch
+- `workflow_dispatched`: n8n accepted the lead
+- `workflow_failed`: dispatch failed safely and may be retried using
+  the same idempotency key
 
-## 6. Workflow Versioning
+A duplicate request normally returns the existing lead without another
+workflow call. A duplicate whose existing state is `workflow_failed`
+is allowed to retry dispatch.
 
-Export production workflows to:
+## Failure behavior
 
-``` text
-n8n/workflows/
-```
+- Network timeout, connection failure, or n8n 5xx: save
+  `workflow_failed`, return a safe `503`, and disclose no internal
+  response body.
+- n8n 4xx or invalid response: treat as rejected, save
+  `workflow_failed`, and return a safe `503`.
+- Workflow runtime failure: route to the imported error workflow, which
+  keeps only workflow/execution identifiers and a truncated message.
 
-Do not commit credentials in exported JSON.
+## Credential setup
 
-## 7. Production
+The workflow export contains no credentials. After import, configure an
+n8n Header Auth credential named for the FastAPI webhook using:
 
-Production webhooks must use production URLs and active workflow
-endpoints, not n8n test webhook URLs.
+- Header: `X-Webhook-Token`
+- Value: the same secret as `N8N_WEBHOOK_TOKEN`
+
+Store that credential encrypted in n8n. Never add it to workflow JSON,
+logs, documentation, or Git.
+
+## Future nodes
+
+AI extraction, sales notifications, CRM updates, and customer follow-up
+remain intentionally unimplemented. They will attach after the
+`Prepare Route` node and must preserve the same idempotency contract.
